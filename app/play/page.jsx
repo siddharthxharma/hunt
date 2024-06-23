@@ -10,6 +10,8 @@ export default function PlayPage() {
   const [answer, setAnswer] = useState('');
   const [feedback, setFeedback] = useState('');
   const [level, setLevel] = useState(null);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
 
   useEffect(() => {
     if (status === 'authenticated' && session?.user.level !== undefined) {
@@ -22,6 +24,16 @@ export default function PlayPage() {
       fetchQuestion(level);
     }
   }, [level]);
+
+  useEffect(() => {
+    // Retrieve username and password from localStorage
+    const storedUsername = localStorage.getItem('username');
+    const storedPassword = localStorage.getItem('password');
+    if (storedUsername && storedPassword) {
+      setUsername(storedUsername);
+      setPassword(storedPassword);
+    }
+  }, []);
 
   const fetchQuestion = async (level) => {
     try {
@@ -41,7 +53,7 @@ export default function PlayPage() {
       console.log(`Submitting answer for level: ${level}`);
       const res = await axios.post('/api/validate-answer', { level, answer });
       console.log('Validation response:', res.data);
-      
+
       if (res.data.message === "Correct answer") {
         setFeedback('Correct answer! Moving to the next level.');
 
@@ -52,8 +64,15 @@ export default function PlayPage() {
         await update({ user: { ...session.user, level: newLevel } });
 
         // Refetch the session to get the updated data
-        const updatedSession = await getSession();
+        let updatedSession = await getSession();
         console.log('Updated session:', updatedSession);
+
+        if (updatedSession?.user?.level !== newLevel) {
+          console.log('Forcing session refresh');
+          await signIn('credentials', { redirect: false, username: username, password: password });
+          updatedSession = await getSession();
+          console.log('Updated session (after refresh):', updatedSession);
+      }
 
         // Ensure local state is in sync with the updated session
         if (updatedSession?.user?.level) {

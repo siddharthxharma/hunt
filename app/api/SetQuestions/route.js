@@ -23,7 +23,7 @@ export async function POST(req) {
     console.log("Hashed answer to be stored: ", hashedAnswer);
 
     await connectMongoDB();
-    await Questions.create({ problem, answer: hashedAnswer, level, image });
+    await Questions.create({ problem, answer: answer, level, image });
 
     return NextResponse.json(
       { message: "Question added successfully" },
