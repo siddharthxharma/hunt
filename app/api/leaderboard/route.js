@@ -5,6 +5,7 @@ export async function GET(req, res) {
   try {
     await connectMongoDB();
 
+    // Fetch users sorted by level (desc) and then by lastSolved (asc)
     const users = await User.find().sort({ level: -1, lastSolved: 1 }).exec();
 
     if (!users) {
@@ -32,4 +33,3 @@ export async function GET(req, res) {
     });
   }
 }
-

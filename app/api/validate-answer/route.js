@@ -33,6 +33,7 @@ export async function POST(req) {
     }
 
     user.level += 1;
+    user.lastSolved = new Date();
     await user.save();
 
     return NextResponse.json({ message: "Correct answer", newLevel: user.level }, { status: 200 });

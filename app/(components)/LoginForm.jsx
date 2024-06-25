@@ -37,8 +37,8 @@ const LoginForm = () => {
 
     return (
         <div>
-            <div className='grid place-items-center h-screen border'>
-                <div className='shadow-lg p-5 rounded border-t-4 border-blue-500'>
+            <div className='grid place-items-center'>
+                <div className='shadow-lg p-5 rounded'>
                     <h1 className='text-xl font-bold my-4'>Enter the details</h1>
                     <form className='flex flex-col gap-3' onSubmit={handleSubmit}>
                         <input type='text' placeholder='Username' onChange={(e) => setUsername(e.target.value)} />

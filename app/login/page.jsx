@@ -3,6 +3,7 @@ import LoginForm from '../(components)/LoginForm'
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
 import { authOptions } from '../api/auth/[...nextauth]/route'
+import Navbar from '../(components)/Navbar'
 
 const Login = async () => {
 
@@ -12,6 +13,7 @@ const Login = async () => {
 
   return (
     <div>
+        <Navbar />
         <LoginForm />
     </div>
   )

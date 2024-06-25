@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSession, signIn, getSession } from 'next-auth/react';
 import axios from 'axios';
+import Navbar from '../(components)/Navbar';
 
 export default function PlayPage() {
   const { data: session, status, update } = useSession();
@@ -12,6 +13,7 @@ export default function PlayPage() {
   const [level, setLevel] = useState(null);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
   useEffect(() => {
     if (status === 'authenticated' && session?.user.level !== undefined) {
@@ -49,6 +51,9 @@ export default function PlayPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Disable the button
+    setIsButtonDisabled(true);
+
     try {
       console.log(`Submitting answer for level: ${level}`);
       const res = await axios.post('/api/validate-answer', { level, answer });
@@ -72,7 +77,7 @@ export default function PlayPage() {
           await signIn('credentials', { redirect: false, username: username, password: password });
           updatedSession = await getSession();
           console.log('Updated session (after refresh):', updatedSession);
-      }
+        }
 
         // Ensure local state is in sync with the updated session
         if (updatedSession?.user?.level) {
@@ -87,6 +92,16 @@ export default function PlayPage() {
       console.error('Error validating answer:', error);
       setFeedback('Error validating answer.');
     }
+
+    // Re-enable the button after 2 seconds
+    setTimeout(() => {
+      setIsButtonDisabled(false);
+    }, 2000);
+
+    // Clear feedback after 5 seconds
+    setTimeout(() => {
+      setFeedback('');
+    }, 5000);
   };
 
   if (status === 'loading') {
@@ -98,26 +113,30 @@ export default function PlayPage() {
   }
 
   return (
-    <div>
-      <h1>Play</h1>
-      {question ? (
-        <div>
-          <h2>Level {level}</h2>
-          <p>{question.problem}</p>
-          <form onSubmit={handleSubmit}>
-            <input
-              type="text"
-              value={answer}
-              onChange={(e) => setAnswer(e.target.value)}
-              required
-            />
-            <button type="submit">Submit</button>
-          </form>
-          {feedback && <p>{feedback}</p>}
-        </div>
-      ) : (
-        <p>Loading question...</p>
-      )}
-    </div>
+    <>
+      <Navbar />
+      <div className='grid place-content-center pt-24'>
+        {question ? (
+          <div>
+            <h2 className='text-xl py-4'>Level {level}</h2>
+            <p className='text-xl'>{question.problem}</p>
+
+            <form onSubmit={handleSubmit}>
+              <input
+                type="text"
+                value={answer}
+                onChange={(e) => setAnswer(e.target.value)}
+                required
+              />
+              <div></div>
+              <button type="submit" disabled={isButtonDisabled} className='my-4 text-xl'>Submit</button>
+            </form>
+            {feedback && <p>{feedback}</p>}
+          </div>
+        ) : (
+          <p>Loading question...</p>
+        )}
+      </div>
+    </>
   );
 }
